@@ -46,11 +46,11 @@ const init = async () => {
         status: "fail",
         message: response.message,
       });
-      newResponse.code(400);
+      newResponse.code(response.statusCode);
       return newResponse;
     }
 
-    return response.continue;
+    return h.continue;
   });
 
   await server.start();

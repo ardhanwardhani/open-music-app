@@ -8,4 +8,10 @@ const songsMapper = ({ id, title, year, genre, performer, duration, albumId }) =
   albumId,
 });
 
-module.exports = { songsMapper };
+const songsListMapper = ({ id, title, performer }) => ({
+  id,
+  title,
+  performer,
+});
+
+module.exports = { songsMapper, songsListMapper };

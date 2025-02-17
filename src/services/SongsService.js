@@ -3,7 +3,7 @@ const { Pool } = require("pg");
 const InvariantError = require("../exceptions/InvariantError");
 const NotFoundError = require("../exceptions/NotFoundError");
 
-const { songsMapper } = require("../utils/songsMapper");
+const { songsMapper, songsListMapper } = require("../utils/songsMapper");
 
 class SongsService {
   constructor() {
@@ -29,9 +29,31 @@ class SongsService {
     return result.rows[0].id;
   }
 
-  async getSongs() {
-    const result = await this._pool.query("SELECT * FROM songs");
-    return result.rows.map(songsMapper);
+  async getSongs({ title, performer }) {
+    let baseQuery = "SELECT * FROM songs";
+    const conditions = [];
+    const values = [];
+
+    if (title) {
+      conditions.push(`LOWER(title) LIKE $${values.length + 1}`);
+      values.push(`%${title.toLowerCase()}%`);
+    }
+
+    if (performer) {
+      conditions.push(`LOWER(performer) LIKE $${values.length + 1}`);
+      values.push(`%${performer.toLowerCase()}%`);
+    }
+
+    if (conditions.length > 0) {
+      baseQuery += ` WHERE ` + conditions.join(" AND ");
+    }
+
+    const result = await this._pool.query({
+      text: baseQuery,
+      values,
+    });
+
+    return result.rows.map(songsListMapper);
   }
 
   async getSongById(id) {
